@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mood Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 0 15px;
+      background: #f9f9f9;
+    }
+    header, footer {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    h1, h2 {
+      color: #333;
+    }
+    .mood-form {
+      background: white;
+      padding: 20px;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    label, select, button {
+      font-size: 16px;
+    }
+    select {
+      margin-left: 10px;
+      padding: 5px 8px;
+    }
+    button {
+      margin-left: 10px;
+      padding: 6px 12px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      border-radius: 4px;
+    }
+    .mood-history {
+      background: white;
+      padding: 20px;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    #history p {
+      margin: 5px 0;
+    }
+    #moodChart {
+      max-width: 100%;
+      height: 400px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Personal Mood Tracker</h1>
+    <p>Track your mood daily and see your emotional trends!</p>
+  </header>
+
+  <section class="mood-form">
+    <h2>How are you feeling today?</h2>
+    <form id="moodForm">
+      <label for="mood">Select your mood:</label>
+      <select id="mood" name="mood">
+        <option value="happy">Happy</option>
+        <option value="neutral">Neutral</option>
+        <option value="sad">Sad</option>
+        <option value="angry">Angry</option>
+      </select>
+      <button type="submit">Submit</button>
+    </form>
+  </section>
+
+  <section class="mood-history">
+    <h2>Your Mood History</h2>
+    <div id="history"></div>
+    <canvas id="moodChart"></canvas>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 Mood Tracker App. All rights reserved.</p>
+  </footer>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    let moodHistory = [];
+    const moodForm = document.getElementById('moodForm');
+    const historyDiv = document.getElementById('history');
+    const moodChartCanvas = document.getElementById('moodChart');
+    let moodChart = null; // will hold Chart.js instance
+
+    moodForm.addEventListener('submit', function(event) {
+      event.preventDefault();
+      const mood = document.getElementById('mood').value;
+      moodHistory.push(mood);
+      updateMoodHistory();
+      updateMoodChart();
+      moodForm.reset();
+    });
+
+    function updateMoodHistory() {
+      historyDiv.innerHTML = '';
+      moodHistory.forEach((mood, index) => {
+        const moodEntry = document.createElement('p');
+        moodEntry.textContent = `Day ${index + 1}: ${mood.charAt(0).toUpperCase() + mood.slice(1)}`;
+        historyDiv.appendChild(moodEntry);
+      });
+    }
+
+    function updateMoodChart() {
+      const moodCounts = { happy: 0, neutral: 0, sad: 0, angry: 0 };
+      moodHistory.forEach(mood => { moodCounts[mood]++; });
+
+      const data = {
+        labels: ['Happy', 'Neutral', 'Sad', 'Angry'],
+        datasets: [{
+          label: 'Mood Count',
+          data: [moodCounts.happy, moodCounts.neutral, moodCounts.sad, moodCounts.angry],
+          backgroundColor: ['#4CAF50', '#FFC107', '#2196F3', '#F44336'],
+          borderColor: '#fff',
+          borderWidth: 1
+        }]
+      };
+
+      const ctx = moodChartCanvas.getContext('2d');
+      if (moodChart) moodChart.destroy();
+
+      moodChart = new Chart(ctx, {
+        type: 'bar',
+        data: data,
+        options: {
+          responsive: true,
+          scales: {
+            y: { beginAtZero: true, precision: 0 }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>
